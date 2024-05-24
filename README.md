@@ -11,6 +11,11 @@ addpath(genpath(main_folder))
 ```
 The code runs on Matlab version R2023a. 
 
+## Experiments
+- Experiment 1: https://gershmanlab.com/experiments/shuze/bandits/experiment/index_exp1.html
+- Experiment 2: https://gershmanlab.com/experiments/shuze/bandits/experiment/index_exp2.html
+- Experiment 3: https://gershmanlab.com/experiments/shuze/bandits/experiment/index_exp3.html
+
 ## Main folder
 - **plot_manuscript_figures.m** creates all figures for the manuscript, based on the datafiles and the saved LBA model fits.
 

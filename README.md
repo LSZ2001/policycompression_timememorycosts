@@ -3,13 +3,13 @@
 - **Bold** words are .m filenames.
 - *Italicized* words are .mat filenames or directory folder names.
 
-All code assumes that the current directory of Matlab is the main folder. The code runs on Matlab version R2023a. 
-Hence, do the following before running any code:
+All code assumes that the current directory of Matlab is the main folder. Hence, do the following before running any code:
 ```
 # The variable main_folder contains the path to the main folder on your computer
 cd(main_folder)
 addpath(genpath(main_folder))
 ```
+The code runs on Matlab version R2023a. 
 
 ## Main folder
 - **plot_manuscript_figures.m** creates all figures for the manuscript, based on the datafiles and the saved LBA model fits.

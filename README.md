@@ -39,5 +39,5 @@ The code runs on Matlab version R2023a.
 ### *fits* subsubfolder
 - It contains LBA fitted parameters for each experiment. 
 ### *utils* subsubfolder
-- It contains LBA code from https://github.com/smfleming/LBA. Some code is modified for our analysis.
+- It contains LBA code from https://github.com/smfleming/LBA. Some code is modified for our model fits.
 

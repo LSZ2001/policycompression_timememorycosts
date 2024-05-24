@@ -37,7 +37,7 @@ The code runs on Matlab version R2023a.
 ### *data* subsubfolder
 - It contains parsed datafiles for Experiment 1 and 3 for subsequent LBA fits. 
 ### *fits* subsubfolder
-- It contains LBA fitted parameters for each experiment. 
+- It contains LBA fitted parameters for each experiment. They are used by **plot_manuscript_figures.m** above.
 ### *utils* subsubfolder
 - It contains LBA code from https://github.com/smfleming/LBA. Some code is modified for our model fits.
 

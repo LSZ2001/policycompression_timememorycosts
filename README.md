@@ -15,7 +15,7 @@ The code runs on Matlab version R2023a.
 - Experiment 1: https://gershmanlab.com/experiments/shuze/bandits/experiment/index_exp1.html
 - Experiment 2: https://gershmanlab.com/experiments/shuze/bandits/experiment/index_exp2.html
 - Experiment 3: https://gershmanlab.com/experiments/shuze/bandits/experiment/index_exp3.html
-- Experiment 3 pilot with 5 set-size conditions (Figure S5): https://gershmanlab.com/experiments/shuze/bandits/experiment/index_exp3_old2.html
+- Experiment 3 pilot with 5 set-size conditions (only appears in Figure S5): https://gershmanlab.com/experiments/shuze/bandits/experiment/index_exp3_old2.html
 
 ## Main folder
 - **plot_manuscript_figures.m** creates all figures for the manuscript, based on the datafiles and the saved LBA model fits.

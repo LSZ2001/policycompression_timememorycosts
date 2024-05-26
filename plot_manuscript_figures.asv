@@ -491,8 +491,8 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, TTestsCI, CohensD
     end
     BehavioralStats.complexity_difficulty_spearman = rhos_subj;
     CohensD.complexity_difficulty_spearman_ispositive = table2cell(meanEffectSize(rhos_subj,Effect="cohen"));
-    [~,TTests.complexity_difficulty_spearman_ispositive,TTestsCI.complexity_difficulty_spearman_ispositive,~] = ttest(rhos_subj,0, "Tail","right");
-    WilcoxonTests.complexity_difficulty_spearman_ispositive = signrank(rhos_subj,0, "Tail","right");
+    [~,TTests.complexity_difficulty_spearman_ispositive,TTestsCI.complexity_difficulty_spearman_ispositive,~] = ttest(rhos_subj);
+    WilcoxonTests.complexity_difficulty_spearman_ispositive = signrank(rhos_subj);
         
 
     % Leftward complexity bias
@@ -1905,8 +1905,8 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, WilcoxonTests] = 
         rhos_subj(subj) = corr(complexity(subj,:)', complexity_rrmax(subj,:)',"Type", "Spearman");
     end
     BehavioralStats.complexity_difficulty_spearman = rhos_subj;
-    [~,TTests.complexity_difficulty_spearman_ispositive,~,~] = ttest(rhos_subj,0,"Tail","right");
-    WilcoxonTests.complexity_difficulty_spearman_ispositive = signrank(rhos_subj,0,"Tail","right");
+    [~,TTests.complexity_difficulty_spearman_ispositive,~,~] = ttest(rhos_subj);
+    WilcoxonTests.complexity_difficulty_spearman_ispositive = signrank(rhos_subj);
 
     % Leftward complexity bias
     complexity_diff_from_rrmax = complexity-complexity_rrmax;

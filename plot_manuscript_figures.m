@@ -45,11 +45,11 @@ clear data datas;
 
 %% Parse data
 experiment = "exp1";
-[exp1.mturkIDs, exp1.optimal_sol, exp1.BehavioralStats, exp1.LME, exp1.TTests, exp1.CohensD, exp1.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
+[exp1.mturkIDs, exp1.optimal_sol, exp1.BehavioralStats, exp1.LME, exp1.TTests, exp1.TTestsCI, exp1.CohensD, exp1.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
 experiment = "exp2";
-[exp2.mturkIDs, exp2.optimal_sol, exp2.BehavioralStats, exp2.LME, exp2.TTests, exp2.CohensD, exp2.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
+[exp2.mturkIDs, exp2.optimal_sol, exp2.BehavioralStats, exp2.LME, exp2.TTests, exp2.TTestsCI, exp2.CohensD, exp2.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
 experiment = "exp3";
-[exp3.mturkIDs, exp3.optimal_sol, exp3.BehavioralStats, exp3.LME, exp3.TTests, exp3.CohensD, exp3.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
+[exp3.mturkIDs, exp3.optimal_sol, exp3.BehavioralStats, exp3.LME, exp3.TTests, exp3.TTestsCI, exp3.CohensD, exp3.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
 
 %% Add in Experiment 1 and 3 LBA results
 exp1 = append_lba_preds("exp1", exp1, lba_folder);
@@ -142,8 +142,26 @@ exportgraphics(gcf,figpath+'FigS5.pdf',"ContentType","vector");
 
 
 
+%% Cohen's d function
+extractFirstColumn(exp1.CohensD)
+function outputStruct = extractFirstColumn(inputStruct)
+    % Initialize the output struct
+    outputStruct = struct();
+    
+    % Get the fieldnames of the input struct
+    fields = fieldnames(inputStruct);
+    
+    % Loop through each field
+    for i = 1:numel(fields)
+        fieldName = fields{i};
+        % Extract the first column of the 3x2 cell and convert it to a 1x3 vector
+        outputStruct.(fieldName) = cell2mat(inputStruct.(fieldName)(:, 1))';
+    end
+end
+
+
 %% Helper functions
-function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD, WilcoxonTests] = parse_data(data_exps, survey_exps, experiment)
+function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, TTestsCI, CohensD, WilcoxonTests] = parse_data(data_exps, survey_exps, experiment)
     TTests = struct();
     CohensD = struct();
     WilcoxonTests = struct();
@@ -256,25 +274,25 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD, Wilcoxon
     end
     CohensD.complexity = CohensD_complexity;
     CohensD.response_time = CohensD_response_time;
-    CohensD.reward_rate = CohensD_reward_rate;
     CohensD.cond_entropy = CohensD_cond_entropy;
     CohensD.repeat_actions = CohensD_repeat_actions;
+    CohensD.reward_rate = CohensD_reward_rate;
     
-    [~,TTests.complexity(1),~,~] = ttest(complexity(:,1), complexity(:,2), "Tail","left");
-    [~,TTests.complexity(2),~,~] = ttest(complexity(:,2), complexity(:,3), "Tail","left");
-    [~,TTests.complexity(3),~,~] = ttest(complexity(:,1), complexity(:,3), "Tail","left");
-    [~,TTests.response_time(1),~,~] = ttest(response_time(:,1), response_time(:,2), "Tail","left");
-    [~,TTests.response_time(2),~,~] = ttest(response_time(:,2), response_time(:,3), "Tail","left");
-    [~,TTests.response_time(3),~,~] = ttest(response_time(:,1), response_time(:,3), "Tail","left");
-    [~,TTests.cond_entropy(1),~,~] = ttest(cond_entropy(:,2), cond_entropy(:,1), "Tail","left");
-    [~,TTests.cond_entropy(2),~,~] = ttest(cond_entropy(:,3), cond_entropy(:,2), "Tail","left");
-    [~,TTests.cond_entropy(3),~,~] = ttest(cond_entropy(:,3), cond_entropy(:,1), "Tail","left");
-    [~,TTests.repeat_actions(1),~,~] = ttest(repeat_actions(:,2), repeat_actions(:,1), "Tail","left");
-    [~,TTests.repeat_actions(2),~,~] = ttest(repeat_actions(:,3), repeat_actions(:,2), "Tail","left");
-    [~,TTests.repeat_actions(3),~,~] = ttest(repeat_actions(:,3), repeat_actions(:,1), "Tail","left");
-    [~,TTests.reward_rate(1),~,~] = ttest(reward_rate(:,2), reward_rate(:,1), "Tail","left");
-    [~,TTests.reward_rate(2),~,~] = ttest(reward_rate(:,3), reward_rate(:,2), "Tail","left");
-    [~,TTests.reward_rate(3),~,~] = ttest(reward_rate(:,3), reward_rate(:,1), "Tail","left");
+    [~,TTests.complexity(1),TTestsCI.complexity(:,1),~] = ttest(complexity(:,1), complexity(:,2), "Tail","left");
+    [~,TTests.complexity(2),TTestsCI.complexity(:,2),~] = ttest(complexity(:,2), complexity(:,3), "Tail","left");
+    [~,TTests.complexity(3),TTestsCI.complexity(:,3),~] = ttest(complexity(:,1), complexity(:,3), "Tail","left");
+    [~,TTests.response_time(1),TTestsCI.response_time(:,1),~] = ttest(response_time(:,1), response_time(:,2), "Tail","left");
+    [~,TTests.response_time(2),TTestsCI.response_time(:,2),~] = ttest(response_time(:,2), response_time(:,3), "Tail","left");
+    [~,TTests.response_time(3),TTestsCI.response_time(:,3),~] = ttest(response_time(:,1), response_time(:,3), "Tail","left");
+    [~,TTests.cond_entropy(1),TTestsCI.cond_entropy(:,1),~] = ttest(cond_entropy(:,2), cond_entropy(:,1), "Tail","left");
+    [~,TTests.cond_entropy(2),TTestsCI.cond_entropy(:,2),~] = ttest(cond_entropy(:,3), cond_entropy(:,2), "Tail","left");
+    [~,TTests.cond_entropy(3),TTestsCI.cond_entropy(:,3),~] = ttest(cond_entropy(:,3), cond_entropy(:,1), "Tail","left");
+    [~,TTests.repeat_actions(1),TTestsCI.repeat_actions(:,1),~] = ttest(repeat_actions(:,2), repeat_actions(:,1), "Tail","left");
+    [~,TTests.repeat_actions(2),TTestsCI.repeat_actions(:,2),~] = ttest(repeat_actions(:,3), repeat_actions(:,2), "Tail","left");
+    [~,TTests.repeat_actions(3),TTestsCI.repeat_actions(:,3),~] = ttest(repeat_actions(:,3), repeat_actions(:,1), "Tail","left");
+    [~,TTests.reward_rate(1),TTestsCI.reward_rate(:,1),~] = ttest(reward_rate(:,2), reward_rate(:,1), "Tail","left");
+    [~,TTests.reward_rate(2),TTestsCI.reward_rate(:,2),~] = ttest(reward_rate(:,3), reward_rate(:,2), "Tail","left");
+    [~,TTests.reward_rate(3),TTestsCI.reward_rate(:,3),~] = ttest(reward_rate(:,3), reward_rate(:,1), "Tail","left");
     
     WilcoxonTests.complexity(1) = signrank(complexity(:,1), complexity(:,2), "Tail","left");
     WilcoxonTests.complexity(2) = signrank(complexity(:,2), complexity(:,3), "Tail","left");
@@ -303,9 +321,9 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD, Wilcoxon
         difficulties = table2array(T(:,3));
     end
     BehavioralStats.difficulties=difficulties;
-    [h,TTests.difficulty(1),~,~] = ttest(difficulties(:,1), difficulties(:,2), "Tail","left");
-    [h,TTests.difficulty(2),~,~] = ttest(difficulties(:,2), difficulties(:,3), "Tail","left");
-    [h,TTests.difficulty(3),~,~] = ttest(difficulties(:,1), difficulties(:,3), "Tail","left");
+    [h,TTests.difficulty(1),TTestsCI.difficulty(:,1),~] = ttest(difficulties(:,1), difficulties(:,2), "Tail","left");
+    [h,TTests.difficulty(2),TTestsCI.difficulty(:,2),~] = ttest(difficulties(:,2), difficulties(:,3), "Tail","left");
+    [h,TTests.difficulty(3),TTestsCI.difficulty(:,3),~] = ttest(difficulties(:,1), difficulties(:,3), "Tail","left");
     WilcoxonTests.difficulty(1) = signrank(difficulties(:,1), difficulties(:,2), "Tail","left");
     WilcoxonTests.difficulty(2) = signrank(difficulties(:,2), difficulties(:,3), "Tail","left");
     WilcoxonTests.difficulty(3) = signrank(difficulties(:,1), difficulties(:,3), "Tail","left");
@@ -387,10 +405,13 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD, Wilcoxon
         % where a_perserv is suboptimal. 
         P_a_perserv_given_suboptimal_s_mean = mean(P_a_perserv_given_suboptimal_s,3);
         BehavioralStats.SuboptimalA = P_a_perserv_given_suboptimal_s_mean;
-        CohensD.SuboptimalA = table2cell(meanEffectSize(P_a_perserv_given_suboptimal_s_mean(:,1), P_a_perserv_given_suboptimal_s_mean(:,3),Effect="cohen", Paired=true));
-        [~,TTests.SuboptimalA(1),~,~] = ttest(P_a_perserv_given_suboptimal_s_mean(:,2), P_a_perserv_given_suboptimal_s_mean(:,1), "Tail","left");
-        [~,TTests.SuboptimalA(2),~,~] = ttest(P_a_perserv_given_suboptimal_s_mean(:,3), P_a_perserv_given_suboptimal_s_mean(:,2), "Tail","left");
-        [~,TTests.SuboptimalA(3),~,~] = ttest(P_a_perserv_given_suboptimal_s_mean(:,3), P_a_perserv_given_suboptimal_s_mean(:,1), "Tail","left");
+        for iti_idx=1:length(ITI_pairs)
+            CohensD_SuboptimalA(iti_idx,:) = table2cell(meanEffectSize(P_a_perserv_given_suboptimal_s_mean(:,ITI_pairs(iti_idx,1)), P_a_perserv_given_suboptimal_s_mean(:,ITI_pairs(iti_idx,2)),Effect="cohen", Paired=true));
+        end
+        CohensD.SuboptimalA = CohensD_SuboptimalA;
+        [~,TTests.SuboptimalA(1),TTestsCI.SuboptimalA(:,1),~] = ttest(P_a_perserv_given_suboptimal_s_mean(:,2), P_a_perserv_given_suboptimal_s_mean(:,1), "Tail","left");
+        [~,TTests.SuboptimalA(2),TTestsCI.SuboptimalA(:,2),~] = ttest(P_a_perserv_given_suboptimal_s_mean(:,3), P_a_perserv_given_suboptimal_s_mean(:,2), "Tail","left");
+        [~,TTests.SuboptimalA(3),TTestsCI.SuboptimalA(:,3),~] = ttest(P_a_perserv_given_suboptimal_s_mean(:,3), P_a_perserv_given_suboptimal_s_mean(:,1), "Tail","left");
         WilcoxonTests.SuboptimalA(1) = signrank(P_a_perserv_given_suboptimal_s_mean(:,2),P_a_perserv_given_suboptimal_s_mean(:,1), "Tail","left");
         WilcoxonTests.SuboptimalA(2) = signrank(P_a_perserv_given_suboptimal_s_mean(:,3),P_a_perserv_given_suboptimal_s_mean(:,2), "Tail","left");
         WilcoxonTests.SuboptimalA(3) = signrank(P_a_perserv_given_suboptimal_s_mean(:,3),P_a_perserv_given_suboptimal_s_mean(:,1), "Tail","left");
@@ -469,16 +490,21 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD, Wilcoxon
         rhos_subj(subj) = corr(complexity(subj,:)', complexity_rrmax(subj,:)',"Type", "Spearman");
     end
     BehavioralStats.complexity_difficulty_spearman = rhos_subj;
-    [~,TTests.complexity_difficulty_spearman_ispositive,~,~] = ttest(zeros(n_subj,1), rhos_subj, "Tail","left");
-    WilcoxonTests.complexity_difficulty_spearman_ispositive = signrank(zeros(n_subj,1), rhos_subj, "Tail","left");
+    CohensD.complexity_difficulty_spearman_ispositive = table2cell(meanEffectSize(rhos_subj,Effect="cohen"));
+    [~,TTests.complexity_difficulty_spearman_ispositive,TTestsCI.complexity_difficulty_spearman_ispositive,~] = ttest(rhos_subj);
+    WilcoxonTests.complexity_difficulty_spearman_ispositive = signrank(rhos_subj);
         
 
     % Leftward complexity bias
     complexity_diff_from_rrmax = complexity-complexity_rrmax;
     LME.complexity_diff_from_rrmax=complexity_diff_from_rrmax;
-    [~,TTests.complexity_lessthan_rrmax(1)] = ttest(complexity(:,1), complexity_rrmax(:,1), "Tail","left");
-    [~,TTests.complexity_lessthan_rrmax(2)] = ttest(complexity(:,2), complexity_rrmax(:,2), "Tail","left");
-    [~,TTests.complexity_lessthan_rrmax(3)] = ttest(complexity(:,3), complexity_rrmax(:,3), "Tail","left");
+    for c=1:3
+        CohensD_complexity_lessthan_rrmax(c,:) = table2cell(meanEffectSize(complexity(:,c),complexity_rrmax(:,c),Effect="cohen", Paired=true));
+    end
+    CohensD.complexity_lessthan_rrmax = CohensD_complexity_lessthan_rrmax;
+    [~,TTests.complexity_lessthan_rrmax(1),TTestsCI.complexity_lessthan_rrmax(:,1)] = ttest(complexity(:,1), complexity_rrmax(:,1), "Tail","left");
+    [~,TTests.complexity_lessthan_rrmax(2),TTestsCI.complexity_lessthan_rrmax(:,2)] = ttest(complexity(:,2), complexity_rrmax(:,2), "Tail","left");
+    [~,TTests.complexity_lessthan_rrmax(3),TTestsCI.complexity_lessthan_rrmax(:,3)] = ttest(complexity(:,3), complexity_rrmax(:,3), "Tail","left");
     WilcoxonTests.complexity_lessthan_rrmax(1) = signrank(complexity(:,1), complexity_rrmax(:,1),"Tail","left");
     WilcoxonTests.complexity_lessthan_rrmax(2) = signrank(complexity(:,2), complexity_rrmax(:,2),"Tail","left");
     WilcoxonTests.complexity_lessthan_rrmax(3) = signrank(complexity(:,3), complexity_rrmax(:,3),"Tail","left");
@@ -503,12 +529,23 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD, Wilcoxon
 
     end
     complexity_group_subjidx = {lowcomplexity_group_subjidx, highcomplexity_group_subjidx};
-    [~,TTests.complexity_lowcomplexity(1)] = ttest(complexity(lowcomplexity_group_subjidx,1), complexity(lowcomplexity_group_subjidx,2),"Tail","left");
-    [~,TTests.complexity_lowcomplexity(2)] = ttest(complexity(lowcomplexity_group_subjidx,2), complexity(lowcomplexity_group_subjidx,3),"Tail","left");
-    [~,TTests.complexity_lowcomplexity(3)] = ttest(complexity(lowcomplexity_group_subjidx,1), complexity(lowcomplexity_group_subjidx,3),"Tail","left");
-    [~,TTests.response_time_lowcomplexity(1)] = ttest(response_time(lowcomplexity_group_subjidx,1), response_time(lowcomplexity_group_subjidx,2),"Tail","left");
-    [~,TTests.response_time_lowcomplexity(2)] = ttest(response_time(lowcomplexity_group_subjidx,2), response_time(lowcomplexity_group_subjidx,3),"Tail","left");
-    [~,TTests.response_time_lowcomplexity(3)] = ttest(response_time(lowcomplexity_group_subjidx,1), response_time(lowcomplexity_group_subjidx,3),"Tail","left");
+    for iti_idx=1:length(ITI_pairs)
+        CohensD_complexity_low_complexity(iti_idx,:) = table2cell(meanEffectSize(complexity(lowcomplexity_group_subjidx,ITI_pairs(iti_idx,1)),complexity(lowcomplexity_group_subjidx,ITI_pairs(iti_idx,2)),Effect="cohen", Paired=true));
+        CohensD_response_time_low_complexity(iti_idx,:) = table2cell(meanEffectSize(response_time(lowcomplexity_group_subjidx,ITI_pairs(iti_idx,1)),response_time(lowcomplexity_group_subjidx,ITI_pairs(iti_idx,2)),Effect="cohen", Paired=true));
+        CohensD_complexity_high_complexity(iti_idx,:) = table2cell(meanEffectSize(complexity(highcomplexity_group_subjidx,ITI_pairs(iti_idx,1)),complexity(highcomplexity_group_subjidx,ITI_pairs(iti_idx,2)),Effect="cohen", Paired=true));
+        CohensD_response_time_high_complexity(iti_idx,:) = table2cell(meanEffectSize(response_time(highcomplexity_group_subjidx,ITI_pairs(iti_idx,1)),response_time(highcomplexity_group_subjidx,ITI_pairs(iti_idx,2)),Effect="cohen", Paired=true));
+    end
+    CohensD.complexity_low_complexity = CohensD_complexity_low_complexity;
+    CohensD.response_time_low_complexity = CohensD_response_time_low_complexity;
+    CohensD.complexity_high_complexity = CohensD_complexity_high_complexity;
+    CohensD.response_time_high_complexity = CohensD_response_time_high_complexity;
+
+    [~,TTests.complexity_lowcomplexity(1),TTestsCI.complexity_lowcomplexity(:,1)] = ttest(complexity(lowcomplexity_group_subjidx,1), complexity(lowcomplexity_group_subjidx,2),"Tail","left");
+    [~,TTests.complexity_lowcomplexity(2),TTestsCI.complexity_lowcomplexity(:,2)] = ttest(complexity(lowcomplexity_group_subjidx,2), complexity(lowcomplexity_group_subjidx,3),"Tail","left");
+    [~,TTests.complexity_lowcomplexity(3),TTestsCI.complexity_lowcomplexity(:,3)] = ttest(complexity(lowcomplexity_group_subjidx,1), complexity(lowcomplexity_group_subjidx,3),"Tail","left");
+    [~,TTests.response_time_lowcomplexity(1),TTestsCI.response_time_lowcomplexity(:,1)] = ttest(response_time(lowcomplexity_group_subjidx,1), response_time(lowcomplexity_group_subjidx,2),"Tail","left");
+    [~,TTests.response_time_lowcomplexity(2),TTestsCI.response_time_lowcomplexity(:,2)] = ttest(response_time(lowcomplexity_group_subjidx,2), response_time(lowcomplexity_group_subjidx,3),"Tail","left");
+    [~,TTests.response_time_lowcomplexity(3),TTestsCI.response_time_lowcomplexity(:,3)] = ttest(response_time(lowcomplexity_group_subjidx,1), response_time(lowcomplexity_group_subjidx,3),"Tail","left");
     WilcoxonTests.complexity_lowcomplexity(1) = signrank(complexity(lowcomplexity_group_subjidx,1), complexity(lowcomplexity_group_subjidx,2),"Tail","left");
     WilcoxonTests.complexity_lowcomplexity(2) = signrank(complexity(lowcomplexity_group_subjidx,2), complexity(lowcomplexity_group_subjidx,3),"Tail","left");
     WilcoxonTests.complexity_lowcomplexity(3) = signrank(complexity(lowcomplexity_group_subjidx,1), complexity(lowcomplexity_group_subjidx,3),"Tail","left");
@@ -516,12 +553,12 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD, Wilcoxon
     WilcoxonTests.response_time_lowcomplexity(2) = signrank(response_time(lowcomplexity_group_subjidx,2), response_time(lowcomplexity_group_subjidx,3),"Tail","left");
     WilcoxonTests.response_time_lowcomplexity(3) = signrank(response_time(lowcomplexity_group_subjidx,1), response_time(lowcomplexity_group_subjidx,3),"Tail","left");
 
-    [~,TTests.complexity_highcomplexity(1)] = ttest(complexity(highcomplexity_group_subjidx,1), complexity(highcomplexity_group_subjidx,2),"Tail","left");
-    [~,TTests.complexity_highcomplexity(2)] = ttest(complexity(highcomplexity_group_subjidx,2), complexity(highcomplexity_group_subjidx,3),"Tail","left");
-    [~,TTests.complexity_highcomplexity(3)] = ttest(complexity(highcomplexity_group_subjidx,1), complexity(highcomplexity_group_subjidx,3),"Tail","left");
-    [~,TTests.response_time_highcomplexity(1)] = ttest(response_time(highcomplexity_group_subjidx,1), response_time(highcomplexity_group_subjidx,2),"Tail","left");
-    [~,TTests.response_time_highcomplexity(2)] = ttest(response_time(highcomplexity_group_subjidx,2), response_time(highcomplexity_group_subjidx,3),"Tail","left");
-    [~,TTests.response_time_highcomplexity(3)] = ttest(response_time(highcomplexity_group_subjidx,1), response_time(highcomplexity_group_subjidx,3),"Tail","left");
+    [~,TTests.complexity_highcomplexity(1),TTestsCI.complexity_highcomplexity(:,1)] = ttest(complexity(highcomplexity_group_subjidx,1), complexity(highcomplexity_group_subjidx,2),"Tail","left");
+    [~,TTests.complexity_highcomplexity(2),TTestsCI.complexity_highcomplexity(:,2)] = ttest(complexity(highcomplexity_group_subjidx,2), complexity(highcomplexity_group_subjidx,3),"Tail","left");
+    [~,TTests.complexity_highcomplexity(3),TTestsCI.complexity_highcomplexity(:,3)] = ttest(complexity(highcomplexity_group_subjidx,1), complexity(highcomplexity_group_subjidx,3),"Tail","left");
+    [~,TTests.response_time_highcomplexity(1),TTestsCI.response_time_highcomplexity(:,1)] = ttest(response_time(highcomplexity_group_subjidx,1), response_time(highcomplexity_group_subjidx,2),"Tail","left");
+    [~,TTests.response_time_highcomplexity(2),TTestsCI.response_time_highcomplexity(:,2)] = ttest(response_time(highcomplexity_group_subjidx,2), response_time(highcomplexity_group_subjidx,3),"Tail","left");
+    [~,TTests.response_time_highcomplexity(3),TTestsCI.response_time_highcomplexity(:,3)] = ttest(response_time(highcomplexity_group_subjidx,1), response_time(highcomplexity_group_subjidx,3),"Tail","left");
     WilcoxonTests.complexity_highcomplexity(1) = signrank(complexity(highcomplexity_group_subjidx,1), complexity(highcomplexity_group_subjidx,2),"Tail","left");
     WilcoxonTests.complexity_highcomplexity(2) = signrank(complexity(highcomplexity_group_subjidx,2), complexity(highcomplexity_group_subjidx,3),"Tail","left");
     WilcoxonTests.complexity_highcomplexity(3) = signrank(complexity(highcomplexity_group_subjidx,1), complexity(highcomplexity_group_subjidx,3),"Tail","left");
@@ -545,8 +582,9 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD, Wilcoxon
                 end
             end
             rewards_phase{c} = reward_phase;
-            [~,TTests.undesired_cycle_effectsC] = ttest(reward_phase(:,1), reward_phase(:,end), "Tail","left");
-            WilcoxonTests.undesired_cycle_effectsC = signrank(reward_phase(:,1), reward_phase(:,end), "Tail","left");
+            CohensD.undesired_cycle_effects = table2cell(meanEffectSize(reward_phase(:,1), reward_phase(:,end), Effect="cohen", Paired=true));
+            [~,TTests.undesired_cycle_effects,TTestsCI.undesired_cycle_effects] = ttest(reward_phase(:,1), reward_phase(:,end), "Tail","left");
+            WilcoxonTests.undesired_cycle_effects = signrank(reward_phase(:,1), reward_phase(:,end), "Tail","left");
         end
     else
         rewards_phase = cell(length(set_sizes),1);
@@ -561,11 +599,22 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD, Wilcoxon
                 end
             end
             rewards_phase{set_size_idx} = reward_phase;
-            [~,TTests.undesired_cycle_effects(set_size_idx)] = ttest(reward_phase(:,1), reward_phase(:,end), "Tail","left");
+            CohensD.undesired_cycle_effects = table2cell(meanEffectSize(reward_phase(:,1), reward_phase(:,end), Effect="cohen", Paired=true));
+            [~,TTests.undesired_cycle_effects(set_size_idx),TTestsCI.undesired_cycle_effects(:,set_size_idx)] = ttest(reward_phase(:,1), reward_phase(:,end), "Tail","left");
             WilcoxonTests.undesired_cycle_effects(set_size_idx) = signrank(reward_phase(:,1), reward_phase(:,end), "Tail","left");
         end
     end
     BehavioralStats.rewards_phase = rewards_phase;
+
+    % Cohen's d--only return the point estimate
+    CohensD_new = struct();
+    fields = fieldnames(CohensD);
+    for i = 1:numel(fields)
+        fieldName = fields{i};
+        % Extract the first column of the 3x2 cell and convert it to a 1x3 vector
+        CohensD_new.(fieldName) = cell2mat(CohensD.(fieldName)(:, 1))';
+    end
+    CohensD = CohensD_new;
 end
 
 %% Figure 1 partial
@@ -1856,8 +1905,8 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, WilcoxonTests] = 
         rhos_subj(subj) = corr(complexity(subj,:)', complexity_rrmax(subj,:)',"Type", "Spearman");
     end
     BehavioralStats.complexity_difficulty_spearman = rhos_subj;
-    [~,TTests.complexity_difficulty_spearman_ispositive,~,~] = ttest(zeros(n_subj,1), rhos_subj, "Tail","left");
-    WilcoxonTests.complexity_difficulty_spearman_ispositive = signrank(zeros(n_subj,1), rhos_subj, "Tail","left");
+    [~,TTests.complexity_difficulty_spearman_ispositive,~,~] = ttest(rhos_subj);
+    WilcoxonTests.complexity_difficulty_spearman_ispositive = signrank(rhos_subj);
 
     % Leftward complexity bias
     complexity_diff_from_rrmax = complexity-complexity_rrmax;

@@ -45,11 +45,11 @@ clear data datas;
 
 %% Parse data
 experiment = "exp1";
-[exp1.mturkIDs, exp1.optimal_sol, exp1.BehavioralStats, exp1.LME, exp1.TTests, exp1.TTestsCI, exp1.CohensD, exp1.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
+[exp1.mturkIDs, exp1.optimal_sol, exp1.BehavioralStats, exp1.LME, exp1.TTests, exp1.EffectSizeCI, exp1.EffectSizes, exp1.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
 experiment = "exp2";
-[exp2.mturkIDs, exp2.optimal_sol, exp2.BehavioralStats, exp2.LME, exp2.TTests, exp2.TTestsCI, exp2.CohensD, exp2.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
+[exp2.mturkIDs, exp2.optimal_sol, exp2.BehavioralStats, exp2.LME, exp2.TTests, exp2.EffectSizeCI, exp2.EffectSizes, exp2.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
 experiment = "exp3";
-[exp3.mturkIDs, exp3.optimal_sol, exp3.BehavioralStats, exp3.LME, exp3.TTests, exp3.TTestsCI, exp3.CohensD, exp3.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
+[exp3.mturkIDs, exp3.optimal_sol, exp3.BehavioralStats, exp3.LME, exp3.TTests, exp3.EffectSizeCI, exp3.EffectSizes, exp3.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment);
 
 %% Add in Experiment 1 and 3 LBA results
 exp1 = append_lba_preds("exp1", exp1, lba_folder);
@@ -141,7 +141,6 @@ exportgraphics(gcf,figpath+'FigS5.pdf',"ContentType","vector");
 
 
 
-
 %% Cohen's d function
 extractFirstColumn(exp1.CohensD)
 function outputStruct = extractFirstColumn(inputStruct)
@@ -161,7 +160,7 @@ end
 
 
 %% Helper functions
-function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, TTestsCI, CohensD, WilcoxonTests] = parse_data(data_exps, survey_exps, experiment)
+function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD_CIs, CohensD, WilcoxonTests] = parse_data(data_exps, survey_exps, experiment)
     TTests = struct();
     CohensD = struct();
     WilcoxonTests = struct();
@@ -499,7 +498,8 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, TTestsCI, CohensD
     complexity_diff_from_rrmax = complexity-complexity_rrmax;
     LME.complexity_diff_from_rrmax=complexity_diff_from_rrmax;
     for c=1:3
-        CohensD_complexity_lessthan_rrmax(c,:) = table2cell(meanEffectSize(complexity(:,c),complexity_rrmax(:,c),Effect="cohen", Paired=true));
+        %CohensD_complexity_lessthan_rrmax(c,:) = table2cell(meanEffectSize(complexity(:,c),complexity_rrmax(:,c),Effect="cohen", Paired=true)); % cliff's delta instead of Cohen's d, because we will use nonparametric test
+        CohensD_complexity_lessthan_rrmax(c,:) = table2cell(meanEffectSize(complexity(:,c),complexity_rrmax(:,c),Effect="cliff", Paired=true)); % cliff's delta instead of Cohen's d, because we will use nonparametric test
     end
     CohensD.complexity_lessthan_rrmax = CohensD_complexity_lessthan_rrmax;
     [~,TTests.complexity_lessthan_rrmax(1),TTestsCI.complexity_lessthan_rrmax(:,1)] = ttest(complexity(:,1), complexity_rrmax(:,1), "Tail","left");
@@ -608,11 +608,13 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, TTestsCI, CohensD
 
     % Cohen's d--only return the point estimate
     CohensD_new = struct();
+    CohensD_CIs = struct();
     fields = fieldnames(CohensD);
     for i = 1:numel(fields)
         fieldName = fields{i};
         % Extract the first column of the 3x2 cell and convert it to a 1x3 vector
         CohensD_new.(fieldName) = cell2mat(CohensD.(fieldName)(:, 1))';
+        CohensD_CIs.(fieldName) = cell2mat(CohensD.(fieldName)(:, 2))';
     end
     CohensD = CohensD_new;
 end

@@ -139,6 +139,18 @@ saveas(gca, figpath+'FigS5.fig')
 exportgraphics(gcf,figpath+'FigS5.png','Resolution',png_dpi);
 exportgraphics(gcf,figpath+'FigS5.pdf',"ContentType","vector");
 
+%% Experiment 2 P(a_perserv | s_suboptim) LME
+SuboptimalA = exp2.BehavioralStats.SuboptimalA;
+SuboptimalA_flat = SuboptimalA(:);
+cond_flat = repmat([0,0.5,2], length(data_exps.exp2),1);
+cond_flat = cond_flat(:);
+subject_id = repmat(1:length(data_exps.exp2), 1, 3)';
+tbl = table(subject_id,cond_flat,SuboptimalA_flat,'VariableNames',{'Subject','ITI','SuboptimalA'});
+lme = fitlme(tbl,'SuboptimalA ~ ITI + (1|Subject) + (ITI-1|Subject)')
+[~,~,stats] = randomEffects(lme,'Alpha',0.01);
+q = dataset2cell(stats(1:n_subj,4));
+w = dataset2cell(stats((n_subj+1):end,4));
+random_effects_iti_std = std(cell2mat(w(2:end)))
 
 
 %% Cohen's d function
@@ -441,7 +453,7 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD_CIs, Cohe
     q = dataset2cell(stats(1:n_subj,4));
     w = dataset2cell(stats((n_subj+1):end,4));
     LME.random_effects_intercept_std = std(cell2mat(q(2:end)));
-    LME.random_effects_complexity_std = std(cell2mat(w(2:end)));
+    LME.random_effects_complexity_std = std(cell2mant(w(2:end)));
     
     % RT_predictions vs. RT_true
     RT_lme = predict(lme); % Return 1SD, instead of 95% CI. 

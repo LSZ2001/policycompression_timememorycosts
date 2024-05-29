@@ -141,6 +141,7 @@ exportgraphics(gcf,figpath+'FigS5.pdf',"ContentType","vector");
 
 %% Experiment 2 P(a_perserv | s_suboptim) LME
 SuboptimalA = exp2.BehavioralStats.SuboptimalA;
+[n_subj,~]=size(SuboptimalA);
 SuboptimalA_flat = SuboptimalA(:);
 cond_flat = repmat([0,0.5,2], length(data_exps.exp2),1);
 cond_flat = cond_flat(:);
@@ -153,7 +154,7 @@ w = dataset2cell(stats((n_subj+1):end,4));
 random_effects_iti_std = std(cell2mat(w(2:end)))
 
 
-%% Cohen's d function
+%% Cohen's d helper function
 extractFirstColumn(exp1.CohensD)
 function outputStruct = extractFirstColumn(inputStruct)
     % Initialize the output struct
@@ -453,7 +454,7 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD_CIs, Cohe
     q = dataset2cell(stats(1:n_subj,4));
     w = dataset2cell(stats((n_subj+1):end,4));
     LME.random_effects_intercept_std = std(cell2mat(q(2:end)));
-    LME.random_effects_complexity_std = std(cell2mant(w(2:end)));
+    LME.random_effects_complexity_std = std(cell2mat(w(2:end)));
     
     % RT_predictions vs. RT_true
     RT_lme = predict(lme); % Return 1SD, instead of 95% CI. 

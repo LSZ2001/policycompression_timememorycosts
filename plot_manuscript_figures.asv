@@ -498,13 +498,8 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD_CIs, Cohe
     end
     LME.complexity_rrmax = complexity_rrmax;
     rhos_subj = zeros(n_subj,1);
-
-    difficulty_subj = 1;
-    for subj=1:n_subj
-        if(~isempty(cell2mat(table2array(T(subj,3))))) % In Experiment 1, one subject did not have difficulty data.
-            rhos_subj(subj) = corr(complexity(subj,:)', difficulties(difficulty_subj,:)',"Type", "Spearman");
-            difficulty_subj = difficulty_subj + 1;
-        end
+    for subj=1:min(n_subj, length(difficulties(:,1)))
+        rhos_subj(subj) = corr(complexity(subj,:)', difficulties(subj,:)',"Type", "Spearman");
     end
     BehavioralStats.complexity_difficulty_spearman = rhos_subj;
     CohensD.complexity_difficulty_spearman_ispositive = table2cell(meanEffectSize(rhos_subj,Effect="cohen"));

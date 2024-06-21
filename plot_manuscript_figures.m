@@ -501,9 +501,11 @@ function [mturkIDs, optimal_sol, BehavioralStats, LME, TTests, CohensD_CIs, Cohe
 
     difficulty_subj = 1;
     for subj=1:n_subj
-        if(~isempty(cell2mat(table2array(T(subj,3))))) % In Experiment 1, one subject did not have difficulty data.
+        if(experiment=="exp1" && ~isempty(cell2mat(table2array(T(subj,3))))) % In Experiment 1, one subject did not have difficulty data.
             rhos_subj(subj) = corr(complexity(subj,:)', difficulties(difficulty_subj,:)',"Type", "Spearman");
             difficulty_subj = difficulty_subj + 1;
+        else
+            rhos_subj(subj) = corr(complexity(subj,:)', difficulties(subj,:)',"Type", "Spearman");
         end
     end
     BehavioralStats.complexity_difficulty_spearman = rhos_subj;

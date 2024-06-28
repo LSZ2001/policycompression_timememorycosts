@@ -1,5 +1,6 @@
 # policycompression_timememorycosts
  Code for the manuscript "Time and memory costs jointly determine a speed-accuracy trade-off and set-size effects" (2024). The authors are Shuze Liu, Lucy Lai, Samuel J. Gershman, and Bilal A. Bari. 
+https://osf.io/preprints/psyarxiv/fupvy
 - **Bold** words are .m filenames.
 - *Italicized* words are .mat filenames or directory folder names.
 

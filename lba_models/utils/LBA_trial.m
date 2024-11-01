@@ -29,7 +29,13 @@ while ~trialOK
     for i = 1:N
         
         % Get starting point
-        k(i) = rand.*A;
+        if(isscalar(A))
+            % Original code: each accomulator i has the same A.
+            k(i) = rand.*A;
+        else
+            % My new code; perseveration in one accumulator.
+            k(i) = rand.*(A(i));
+        end
         
         % Get drift rate
         d(i) = normrnd(v(i), sv);
@@ -59,9 +65,8 @@ while ~trialOK
         [nb i] = max(z);
         conf = b-nb;
     end
-    
-    % Check we have not sampled negative drift(s)
-    if RT > 0 & nb > 0
+
+    if RT > 0 
         trialOK = true;
     end
 end

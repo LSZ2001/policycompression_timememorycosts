@@ -45,6 +45,14 @@ function [params LL] = LBA_mle(data, model, pArray, Na)
 options = optimset('Display','iter','MaxFunEvals',100000);
 LB = ones(1,length(pArray)).*1e-5;
 UB = ones(1,length(pArray)).*Inf;
+
+% For p_lrate, their values must be in [0,1].
+field_names = fieldnames(model);
+if(field_names{end}=="p_lrate")
+    p_lrate_nparams = model.p_lrate;
+    UB((end-p_lrate_nparams+1):end) = 1-(1e-5);
+end
+
 [params fVal] = fmincon(@fitfunc,pArray,[],[],[],[],LB,UB,[],options);
 %[params fVal] = bads(@fitfunc,pArray,LB,UB,LB,ones(1,length(pArray)).*1000);
 
@@ -58,21 +66,28 @@ LL = -fVal; % This returns the log likelihood.
         % ensure data is in right format
         data = structfun(@(x) reshape(x,ntrials,1), data, 'UniformOutput', false);
         
-        [v_correct A b v_incorrect t0] = LBA_parse(model, pArray, Ncond);
+        [v_correct A b v_incorrect t0, perserv, perservA, v_lrate, p_lrate] = LBA_parse(model, pArray, Ncond);
         A = real(log(A));
         b = real(log(b));
         t0 = real(log(t0));
+
+        model_contains_perseveration_prob = ((1-isscalar(v_lrate)) + (1-isnan(v_lrate))) > 0;
+        model_contains_perseveration_prob = model_contains_perseveration_prob(1);
+        
         
         %% Get likelihoods
         if isfield(data, 'cond')
             
             % Get log-liks for these parameters
-            cor = data.response == data.stim;
+            cor = data.correct; %data.response == data.stim;
             if Ncond == 1
                 vi = repmat(v_incorrect, length(data.cond), Na);
             else
                 vi = repmat(v_incorrect(data.cond), 1, Na);
             end
+            rtfit = data.rt - exp(t0(data.cond));
+            sv = repmat(0.1, length(data.cond),1); % Parameter identifiability
+
             % NOTE: LBA_n1PDF(t, ..., v, ...) finds the prob that the
             % FIRST accumulator (corresponding to v(:,1) is the earliest
             % accumulator to reach the bound at time t.
@@ -83,12 +98,20 @@ LL = -fVal; % This returns the log likelihood.
             % 2).
             v_correct_ind = sub2ind([length(data.cond), Na], 1:length(data.cond), logical(~cor)'+1);
             vi(v_correct_ind) = v_correct(data.cond);
-            rtfit = data.rt - exp(t0(data.cond));
 
-            sv = repmat(0.1, length(data.cond),1); % Parameter identifiability
-            
-            % trial likelihoods
-            p = LBA_n1PDF(rtfit, exp(A(data.cond)), exp(b(data.cond)) + exp(A(data.cond)), vi, sv);
+            if(model_contains_perseveration_prob)
+                % NOTE: LBA_n1PDF(t, ..., v, ...) finds the prob that the
+                % FIRST accumulator (corresponding to v(:,1) is the earliest
+                % accumulator to reach the bound at time t.
+                % ALSO: v(trial,1)=v_correct if the
+                % participant answers this trial correctly, and
+                % v(trial,1)=v_incorrect otherwise (and set any
+                % arbitrary col to v_correct instead--I have just chosen Col
+                % 2).
+                perserv_accumulator_matrix = lba_fits_perserv_prob_accumulator(data, Na, v_lrate, p_lrate);
+                vi = exp(vi+perserv_accumulator_matrix);
+            end
+        p = LBA_n1PDF(rtfit, exp(A(data.cond)), exp(b(data.cond)) + exp(A(data.cond)), vi, sv);
             
         else
             fprintf('\n\n\nBad input! See help LBA_mle.\n\n');

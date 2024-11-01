@@ -35,9 +35,9 @@ The code runs on Matlab version R2023a.
 - It contains helper functions for the Blahut-Arimoto algorithm, mutual information and conditional entropy estimation, within-participant errorbar visualization, and color palettes.
 
 ## *lba_models* subfolder
-- **lba_fits_exp1.m** and **lba_fits_exp3.m** perform LBA fits for Experiment 1 and 3. They parse datafiles into LBA-compatible format and fit parameters.
+- **lba_fits_allexps.m** perform LBA fits for all experiments. They parse datafiles into LBA-compatible format and fit LBA model parameters.
 ### *data* subsubfolder
-- It contains parsed datafiles for Experiment 1 and 3 for subsequent LBA fits. 
+- It contains parsed datafiles for each experiment for subsequent LBA fits. 
 ### *fits* subsubfolder
 - It contains LBA fitted parameters for each experiment. They are used by **plot_manuscript_figures.m** above.
 ### *utils* subsubfolder

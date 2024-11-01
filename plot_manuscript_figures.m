@@ -1,9 +1,9 @@
 %% This code assumes same LBA2 for all Experiments -- vary b, not mean drift rates! 
 
 clear all; close all;
-base_folder = 'C:\Users\liu_s\policycompression_timememorycosts';
-cd(base_folder)
-addpath(genpath(base_folder))
+% base_folder = 'C:\Users\liu_s\policycompression_timememorycosts';
+% cd(base_folder)
+% addpath(genpath(base_folder))
 
 % Figure and font default setting
 set(0,'units','inches');

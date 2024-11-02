@@ -58,7 +58,7 @@ experiment = "exp2";
 experiment = "exp3";
 [exp3.mturkIDs, exp3.optimal_sol, exp3.BehavioralStats, exp3.LME, exp3.TTests, exp3.EffectSizeCI, exp3.EffectSizes, exp3.WilcoxonTests] = parse_data(data_exps, survey_exps, experiment, exp3_correct_actions);
 
-%% Add in fake data generated from fitted LBAs
+% Add in fake data generated from fitted LBAs
 lba_models_visualized = [1,2,3,4]; 
 [exp1,data_lba_exp1] = append_lba_preds("exp1", exp1, lba_folder, lba_models_visualized);
 [exp2,data_lba_exp2] = append_lba_preds("exp2", exp2, lba_folder, lba_models_visualized, exp2.BehavioralStats.correct_actions);

@@ -24,8 +24,6 @@ The code runs on Matlab version R2023a.
 
 ## *data* subfolder
 - *iti_bandit_data_exp1.mat* to *iti_bandit_data_exp3_old2.mat* are the raw datafiles for each experiment. We excluded all participants who, in any test block, had an average RT over 5 seconds. These datafiles are used by **plot_manuscript_figures.m** above.
-- Other *.mat* files with the suffix *_train_blocks_* contain only training block performance. They include both included and excluded participants. 
-- Other *.mat* files with the suffix *_test_blocks_* contain only test block performance.
 - Among the above, *.mat* files with the suffix *_noexclusion* do not apply the exclusion criterion. Hence they include both included and excluded participants. 
 
 ## *figures* subfolder

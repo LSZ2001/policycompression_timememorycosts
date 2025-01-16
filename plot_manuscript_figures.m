@@ -1,9 +1,9 @@
 %% This code assumes same LBA2 for all Experiments -- vary b, not mean drift rates! 
 
 clear all; close all;
-% base_folder = 'C:\Users\liu_s\policycompression_timememorycosts';
-% cd(base_folder)
-% addpath(genpath(base_folder))
+base_folder = 'C:\Users\liu_s\policycompression_timememorycosts';
+cd(base_folder)
+addpath(genpath(base_folder))
 
 % Figure and font default setting
 set(0,'units','inches');
@@ -1160,7 +1160,7 @@ function [] = Figure4(experiment_stats, cmap, figspecs)
         xticks(-2:1:2)
         xlim([-2,2])
         ylim([0,ymax(c)])
-        xlabel("Policy complexity, optimal - empirical (bits)")
+        xlabel("Policy complexity, empirical - optimal (bits)")
         %title("ITI="+cond(c)/1000+"s")
         ttl = title(titles(c), "Fontsize", ttl_fontsize);
         ttl.Units = 'Normalize'; 
@@ -1422,7 +1422,7 @@ function [] = Figure6(experiment_stats, cmap, figspecs)
     ylim([0 0.15])
     xticks(-2:1:1)
     ylabel("Relative Frequency")
-    xlabel("Policy complexity, optimal - empirical (bits)")
+    xlabel("Policy complexity, empirical - optimal (bits)")
     set(gca,'box','off')
     % h_leg = legend('Set size = 2','Set size = 4','Set size = 6', 'Location', "northeast");
     % h_leg.BoxFace.ColorType='truecoloralpha';
@@ -1762,7 +1762,7 @@ function [] = FigureS3(experiments_stats, cmap, cmap_exp3, figspecs)
             ylim([0,ymax])
         end
         if(experiment=="exp3")
-            xlabel("I(S;A), opt-emp (bits)")
+            xlabel("I(S;A), emp-opt (bits)")
         elseif(experiment=="exp1")
             ttl = title('F', "Fontsize", ttl_fontsize);
             ttl.Units = 'Normalize'; 
